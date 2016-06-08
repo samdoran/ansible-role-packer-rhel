@@ -1,2 +1,19 @@
 ---
-# defaults file for packer-rhel7
+packer_users:
+  - name: root
+    password: vagrant
+
+  - name: vagrant
+    password: vagrant
+
+rhn_username: "{{ lookup('env', 'RHN_USERNAME') }}"
+rhn_password: "{{ lookup('env', 'RHN_PASSWORD') }}"
+
+packer_services:
+  - name: ntpd
+    state: started
+    enabled: yes
+
+  - name: firewalld
+    state: stopped
+    enabled: no

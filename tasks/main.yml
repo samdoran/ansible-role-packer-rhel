@@ -1,2 +1,93 @@
----
-# tasks file for packer-rhel7
+- name: Configure services
+  service:
+    name: "{{ item.name }}"
+    state: "{{ item.state }}"
+    enabled: "{{ item.enabled }}"
+  with_items: "{{ packer_services }}"
+  ignore_errors: yes
+
+- name: Create user accounts and set password
+  user:
+    name: "{{ item.name }}"
+    password: "{{ item.password | password_hash }}"
+    state: present
+  with_items: "{{ packer_users }}"
+
+# Fix slow DNS.
+# https://github.com/mitchellh/vagrant/issues/1172
+- name: Fix slow DNS
+  lineinfile:
+    dest: /etc/sysconfig/network
+    regexp: '^RES_OPTIONS'
+    line: 'RES_OPTIONS="single-request-reopen"'
+    state: present
+  register: slow_dns_fix
+
+- name: Restart network service
+  service:
+    name: network
+    state: restarted
+  when: slow_dns_fix.changed
+
+- name: Configure passwordless sudo without TTY
+  lineinfile:
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    dest: /etc/sudoers
+    validate: visudo -cf %s
+  with_items:
+    - { regexp: "^.*requiretty", line: "#Defaults requiretty" }
+    - { regexp: "^vagrant.*NOPASSWD:.*ALL", line: "vagrant        ALL=(ALL)       NOPASSWD: ALL" }
+
+- name: Configure SSH
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: "^#?UseDNS", line: "UseDNS no" }
+    - { regexp: "^#?GSSAPIAuthentication", line: "GSSAPIAuthentication no" }
+
+- name: Add Vagrant SSH key
+  authorized_key:
+    user: vagrant
+    key: https://github.com/mitchellh/vagrant/raw/master/keys/vagrant.pub
+
+- name: Remove udev rules for network devices
+  file:
+    dest: /etc/udev/rules.d/70-persistent-net.rules
+    state: absent
+
+- name: List network config files
+  shell: ls /etc/sysconfig/network-scripts/ifcfg-*
+  register: network_config_files
+  changed_when: False
+
+- name: Remove device specific network settings
+  lineinfile:
+    dest: "{{ item[0] }}"
+    regexp: "{{ item[1] }}"
+    state: absent
+  with_nested:
+    - "{{ network_config_files }}"
+    - ["^HWADDR", "^UUID" ]
+
+- name: Register Red Hat subscription
+  redhat_subscription:
+    username: "{{ lookup('env', 'RHN_USER') }}"
+    password: "{{ lookup('env', 'RHN_PASSWORD') }}"
+    state: present
+    autosubscribe: True
+  when: ansible_distribution == 'RedHat'
+
+- name: Install all updates
+  yum:
+    name: "*"
+    state: latest
+
+- name: Deregister Red Hat subscription
+  redhat_subscription:
+    username: "{{ rhn_username }}"
+    password: "{{ rhn_password }}"
+    state: absent
+  when: ansible_distribution == 'RedHat'
