@@ -80,6 +80,23 @@
     autosubscribe: True
   when: ansible_distribution == 'RedHat'
 
+- name: Check for Virtualbox
+  stat:
+    path: /home/vagrant/.vbox_version
+  register: virtualbox_check
+
+- include: virtualbox.yml
+  when: virtualbox_check.stat.exists
+
+- name: Remove pacakages
+  yum:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - kernel-headers
+    - kernel-devel
+    - gcc
+
 - name: Install all updates
   yum:
     name: "*"
