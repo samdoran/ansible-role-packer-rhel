@@ -1,5 +1,6 @@
 Packer RHEL
 =========
+[![Galaxy](https://img.shields.io/badge/galaxy-samdoran.packer--rhel-blue.svg?style=flat)](https://galaxy.ansible.com/samdoran/packer-rhel)
 
 Configure a RHEL machine to be used as a Vagrant box. Configuration based on [Vagrant box documentation](https://www.vagrantup.com/docs/boxes/base.html).
 
@@ -9,6 +10,7 @@ Requirements
 ------------
 
 Current Red Hat subscription.
+Red Hat username and password.
 
 Role Variables
 --------------
