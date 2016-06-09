@@ -14,7 +14,7 @@
     name: /tmp/vbox
     src: /home/vagrant/VBoxGuestAdditions.iso
     opts: loop
-    state: unmounted
+    state: absent
     fstype: iso9660
 
 - name: Remove Virtualbox guest additions ISO
