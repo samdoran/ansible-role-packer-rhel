@@ -1,11 +1,3 @@
-- name: Configure services
-  service:
-    name: "{{ item.name }}"
-    state: "{{ item.state }}"
-    enabled: "{{ item.enabled }}"
-  with_items: "{{ packer_services }}"
-  ignore_errors: yes
-
 - name: Create user accounts and set password
   user:
     name: "{{ item.name }}"
@@ -80,6 +72,24 @@
     autosubscribe: True
   when: ansible_distribution == 'RedHat'
 
+- name: Install dkms
+  yum:
+    name: dkms
+    state: present
+
+- name: Configure services
+  service:
+    name: "{{ item.name }}"
+    state: "{{ item.state }}"
+    enabled: "{{ item.enabled }}"
+  with_items: "{{ packer_services }}"
+  ignore_errors: yes
+
+- name: Install all updates
+  yum:
+    name: "*"
+    state: latest
+
 - name: Check for Virtualbox
   stat:
     path: /home/vagrant/.vbox_version
@@ -88,19 +98,14 @@
 - include: virtualbox.yml
   when: virtualbox_check.stat.exists
 
-- name: Remove pacakages
+- name: Delete unnecessary packages
   yum:
     name: "{{ item }}"
     state: absent
   with_items:
-    - kernel-headers
-    - kernel-devel
     - gcc
-
-- name: Install all updates
-  yum:
-    name: "*"
-    state: latest
+    - kernel-devel
+    - kernel-headers
 
 - name: Deregister Red Hat subscription
   redhat_subscription:
