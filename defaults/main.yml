@@ -17,3 +17,7 @@ packer_services:
   - name: firewalld
     state: stopped
     enabled: no
+
+  - name: dkms
+    state: started
+    enabled: yes
