@@ -69,7 +69,7 @@
     regexp: "{{ item[1] }}"
     state: absent
   with_nested:
-    - "{{ network_config_files }}"
+    - "{{ network_config_files.stdout_lines }}"
     - ["^HWADDR", "^UUID" ]
 
 - name: Register Red Hat subscription
