@@ -1,0 +1,5 @@
+packer_services_unique:
+  - name: dkms
+    state: started
+    enabled: yes
+    version: 5

@@ -1,3 +1,18 @@
+- name: Include variables
+  include_vars: "{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+
+- name: Install packages
+  yum:
+    name:
+      - libselinux-python
+      - python-simplejson
+      - yum-utils
+      - dkms
+      - ntp
+      - bzip2
+      - perl
+    state: present
+
 - name: Create user accounts and set password
   user:
     name: "{{ item.name }}"
@@ -19,7 +34,7 @@
   service:
     name: network
     state: restarted
-  when: slow_dns_fix.changed
+  when: slow_dns_fix | changed
 
 - name: Configure passwordless sudo without TTY
   lineinfile:
@@ -72,18 +87,13 @@
     autosubscribe: True
   when: ansible_distribution == 'RedHat'
 
-- name: Install dkms
-  yum:
-    name: dkms
-    state: present
-
 - name: Configure services
   service:
     name: "{{ item.name }}"
     state: "{{ item.state }}"
     enabled: "{{ item.enabled }}"
-  with_items: "{{ packer_services }}"
-  ignore_errors: yes
+  with_items: "{{ packer_services | union(packer_services_unique) }}"
+  when: ansible_distribution_major_version | version_compare(item.version, ">=")
 
 - name: Install all updates
   yum:
@@ -97,15 +107,6 @@
 
 - include: virtualbox.yml
   when: virtualbox_check.stat.exists
-
-- name: Delete unnecessary packages
-  yum:
-    name: "{{ item }}"
-    state: absent
-  with_items:
-    - gcc
-    - kernel-devel
-    - kernel-headers
 
 - name: Deregister Red Hat subscription
   redhat_subscription:
