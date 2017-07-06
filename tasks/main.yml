@@ -11,6 +11,7 @@
       - ntp
       - bzip2
       - perl
+      - unzip
     state: present
 
 - name: Create user accounts and set password
