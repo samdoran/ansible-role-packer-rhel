@@ -12,6 +12,8 @@
       - bzip2
       - perl
       - unzip
+      - kernel-devel
+      - kernel-headers
     state: present
 
 - name: Create user accounts and set password
