@@ -14,6 +14,8 @@
       - unzip
       - kernel-devel
       - kernel-headers
+      - tmux
+      - python-q
     state: present
 
 - name: Create user accounts and set password
