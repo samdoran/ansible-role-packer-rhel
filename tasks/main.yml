@@ -6,6 +6,7 @@
     name:
       - libselinux-python
       - python-simplejson
+      - policycoreutils-python
       - yum-utils
       - dkms
       - ntp
