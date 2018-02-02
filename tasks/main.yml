@@ -1,6 +1,14 @@
 - name: Include variables
   include_vars: "{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
 
+- name: Register Red Hat subscription
+  redhat_subscription:
+    username: "{{ rhn_username }}"
+    password: "{{ rhn_password }}"
+    state: present
+    pool_ids: "{{ rhn_pool_ids }}"
+  when: ansible_distribution == 'RedHat'
+
 - name: Install packages
   yum:
     name:
@@ -84,14 +92,6 @@
   with_nested:
     - "{{ network_config_files.stdout_lines }}"
     - ["^HWADDR", "^UUID" ]
-
-- name: Register Red Hat subscription
-  redhat_subscription:
-    username: "{{ rhn_username }}"
-    password: "{{ rhn_password }}"
-    state: present
-    autosubscribe: True
-  when: ansible_distribution == 'RedHat'
 
 - name: Configure services
   service:
