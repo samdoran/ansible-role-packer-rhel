@@ -5,7 +5,7 @@
   redhat_subscription:
     username: "{{ rhn_username }}"
     password: "{{ rhn_password }}"
-    consumer_name: packer-{{ ansible_hostname }}
+    consumer_name: "{{ ansible_hostname }}"
     state: present
     pool_ids: "{{ rhn_pool_ids }}"
   when: ansible_distribution == 'RedHat'
