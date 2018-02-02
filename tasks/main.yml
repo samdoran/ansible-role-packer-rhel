@@ -12,20 +12,7 @@
 
 - name: Install packages
   yum:
-    name:
-      - libselinux-python
-      - python-simplejson
-      - policycoreutils-python
-      - yum-utils
-      - dkms
-      - ntp
-      - bzip2
-      - perl
-      - unzip
-      - kernel-devel
-      - kernel-headers
-      - tmux
-      - python-q
+    name: "{{ yum_packages }}"
     state: present
 
 - name: Create user accounts and set password
