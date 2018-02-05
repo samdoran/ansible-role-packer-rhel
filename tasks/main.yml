@@ -3,11 +3,11 @@
 
 - name: Register Red Hat subscription
   redhat_subscription:
-    username: "{{ rhn_username }}"
-    password: "{{ rhn_password }}"
+    username: "{{ rhsm_username }}"
+    password: "{{ rhsm_password }}"
     consumer_name: "{{ ansible_hostname }}"
     state: present
-    pool_ids: "{{ rhn_pool_ids }}"
+    pool_ids: "{{ rhsm_pool_ids }}"
   when: ansible_distribution == 'RedHat'
 
 - name: Install packages
@@ -104,7 +104,7 @@
 
 - name: Deregister Red Hat subscription
   redhat_subscription:
-    username: "{{ rhn_username }}"
-    password: "{{ rhn_password }}"
+    username: "{{ rhsm_username }}"
+    password: "{{ rhsm_password }}"
     state: absent
   when: ansible_distribution == 'RedHat'

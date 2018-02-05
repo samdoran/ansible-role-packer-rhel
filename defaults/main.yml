@@ -5,9 +5,9 @@ packer_users:
   - name: vagrant
     password: vagrant
 
-rhn_username: "{{ lookup('env', 'RHN_USERNAME') }}"
-rhn_password: "{{ lookup('env', 'RHN_PASSWORD') }}"
-rhn_pool_ids: "{{ lookup('env', 'POOL_ID') }}"
+rhsm_username: "{{ lookup('env', 'RHSM_USERNAME') }}"
+rhsm_password: "{{ lookup('env', 'RHSM_PASSWORD') }}"
+rhsm_pool_ids: "{{ lookup('env', 'RHSM_POOL_ID') }}"
 
 packer_services:
   - name: ntpd
