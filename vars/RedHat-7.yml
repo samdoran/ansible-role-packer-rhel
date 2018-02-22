@@ -17,3 +17,4 @@ yum_packages:
     - kernel-headers
     - tmux
     - python-q
+    - jq
