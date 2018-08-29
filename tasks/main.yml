@@ -36,7 +36,7 @@
   service:
     name: network
     state: restarted
-  when: slow_dns_fix | changed
+  when: slow_dns_fix is changed
 
 - name: Configure passwordless sudo without TTY
   lineinfile:
@@ -87,7 +87,7 @@
     state: "{{ item.state }}"
     enabled: "{{ item.enabled }}"
   with_items: "{{ packer_services | union(packer_services_unique) }}"
-  when: ansible_distribution_major_version | version_compare(item.version, ">=")
+  when: ansible_distribution_major_version is version_compare(item.version, ">=")
 
 - name: Install all updates
   yum:

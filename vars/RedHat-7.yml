@@ -18,3 +18,4 @@ yum_packages:
     - tmux
     - python-q
     - jq
+    - policycoreutils-python
