@@ -1,14 +1,14 @@
 - name: Include variables
-  include_vars: "{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+  include_vars: "{{ ansible_facts.os_family }}-{{ ansible_facts.distribution_major_version }}.yml"
 
 - name: Register Red Hat subscription
   redhat_subscription:
     username: "{{ rhsm_username }}"
     password: "{{ rhsm_password }}"
-    consumer_name: "{{ ansible_hostname }}"
+    consumer_name: "{{ ansible_facts.hostname }}"
     state: present
     pool_ids: "{{ rhsm_pool_ids }}"
-  when: ansible_distribution == 'RedHat'
+  when: ansible_facts.distribution == 'RedHat'
 
 - name: Install packages
   yum:
@@ -20,7 +20,7 @@
     name: "{{ item.name }}"
     password: "{{ item.password | password_hash }}"
     state: present
-  with_items: "{{ packer_users }}"
+  loop: "{{ packer_users }}"
 
 # Fix slow DNS.
 # https://github.com/mitchellh/vagrant/issues/1172
@@ -31,12 +31,16 @@
     line: 'RES_OPTIONS="single-request-reopen"'
     state: present
   register: slow_dns_fix
+  tags:
+    - notest
 
 - name: Restart network service
   service:
     name: network
     state: restarted
   when: slow_dns_fix is changed
+  tags:
+    - notest
 
 - name: Configure passwordless sudo without TTY
   lineinfile:
@@ -44,18 +48,26 @@
     line: "{{ item.line }}"
     dest: /etc/sudoers
     validate: visudo -cf %s
-  with_items:
-    - { regexp: "^.*requiretty", line: "#Defaults requiretty" }
-    - { regexp: "^vagrant.*NOPASSWD:.*ALL", line: "vagrant        ALL=(ALL)       NOPASSWD: ALL" }
+  loop:
+    - regexp: "^.*requiretty"
+      line: "#Defaults requiretty"
+
+    - regexp: "^vagrant.*NOPASSWD:.*ALL"
+      line: "vagrant        ALL=(ALL)       NOPASSWD: ALL"
 
 - name: Configure SSH
   lineinfile:
     dest: /etc/ssh/sshd_config
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
-  with_items:
-    - { regexp: "^#?UseDNS", line: "UseDNS no" }
-    - { regexp: "^#?GSSAPIAuthentication", line: "GSSAPIAuthentication no" }
+  loop:
+    - regexp: "^#?UseDNS"
+      line: "UseDNS no"
+
+    - regexp: "^#?GSSAPIAuthentication"
+      line: "GSSAPIAuthentication no"
+  tags:
+    - notest
 
 - name: Add Vagrant SSH key
   authorized_key:
@@ -70,7 +82,7 @@
 - name: List network config files
   shell: ls /etc/sysconfig/network-scripts/ifcfg-*
   register: network_config_files
-  changed_when: False
+  changed_when: no
 
 - name: Remove device specific network settings
   lineinfile:
@@ -86,13 +98,15 @@
     name: "{{ item.name }}"
     state: "{{ item.state }}"
     enabled: "{{ item.enabled }}"
-  with_items: "{{ packer_services | union(packer_services_unique) }}"
-  when: ansible_distribution_major_version is version_compare(item.version, ">=")
+  loop: "{{ packer_services | union(packer_services_unique) }}"
+  when: ansible_facts.distribution_major_version is version_compare(item.version, ">=")
 
 - name: Install all updates
   yum:
     name: "*"
     state: latest
+  tags:
+    - notest
 
 - name: Check for Virtualbox
   stat:
@@ -107,4 +121,4 @@
     username: "{{ rhsm_username }}"
     password: "{{ rhsm_password }}"
     state: absent
-  when: ansible_distribution == 'RedHat'
+  when: ansible_facts.distribution == 'RedHat'

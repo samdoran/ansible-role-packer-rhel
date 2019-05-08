@@ -1,29 +1,35 @@
----
 language: python
-python: "2.7"
+services: docker
 
-# Use the new container infrastructure
-sudo: required
-
-# Install ansible
-addons:
-  apt:
-    packages:
-    - python-pip
+env:
+  global:
+    - ROLE_NAME: packer_rhel
+  matrix:
+    - MOLECULE_DISTRIBUTION: centos6
+    - MOLECULE_DISTRIBUTION: centos7
+    - MOLECULE_DISTRIBUTION: rhel6
+    - MOLECULE_DISTRIBUTION: rhel7
+    # - MOLECULE_DISTRIBUTION: ubuntu14
+    # - MOLECULE_DISTRIBUTION: ubuntu16
+    # - MOLECULE_DISTRIBUTION: ubuntu18
+    # - MOLECULE_DISTRIBUTION: debian8
+    # - MOLECULE_DISTRIBUTION: debian9
+    # - MOLECULE_DISTRIBUTION: fedora27
+    # - MOLECULE_DISTRIBUTION: fedora28
+    # - MOLECULE_DISTRIBUTION: fedora29
 
 install:
-  # Install ansible
-  - pip install ansible
+  - pip install molecule docker
 
-  # Check ansible version
-  - ansible --version
-
-  # Create ansible.cfg with correct roles_path
-  - printf '[defaults]\nroles_path=../' >ansible.cfg
+before_script:
+  # Remove "ansible-role-" prefix from role name
+  - cd ../
+  - mv ansible-role-${ROLE_NAME/_/-} $ROLE_NAME
+  - cd $ROLE_NAME
 
 script:
-  # Basic role syntax check
-  - ansible-playbook tests/test.yml -i tests/inventory --syntax-check
+  # Run tests
+  - molecule test --all
 
 notifications:
-  webhooks: https://galaxy.ansible.com/api/v1/notifications/
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/

@@ -1,6 +1,6 @@
 Packer RHEL
 =========
-[![Galaxy](https://img.shields.io/badge/galaxy-samdoran.packer--rhel-blue.svg?style=flat)](https://galaxy.ansible.com/samdoran/packer-rhel)
+[![Galaxy](https://img.shields.io/badge/galaxy-samdoran.packer--rhel-blue.svg?style=flat)](https://galaxy.ansible.com/samdoran/packer_rhel)
 
 Configure a RHEL machine to be used as a Vagrant box. Configuration based on [Vagrant box documentation](https://www.vagrantup.com/docs/boxes/base.html).
 
@@ -18,8 +18,9 @@ Role Variables
 | Name              | Default Value       | Description          |
 |-------------------|---------------------|----------------------|
 | `packer_users` | [see `defaults/main.yml` | User accounts to create and passwords to set. |
-| `rhn_username` | `{{ lookup('env', 'RHN_USERNAME') }}` | Red Hat Portal username. Looks for an environment variable by default. |
-| `rhn_password` | `{{ lookup('env', 'RHN_PASSWORD') }}` | Red Hat Portal password. Looks for an environment variable by default. |
+| `rhsm_username` | `{{ lookup('env', 'RHSM_USERNAME') }}` | Red Hat Portal username. Looks for an environment variable by default. |
+| `rhsm_password` | `{{ lookup('env', 'RHSM_PASSWORD') }}` | Red Hat Portal password. Looks for an environment variable by default. |
+| `rhsm_pool_ids` | `{{ lookup('env', 'RHSM_POOL_ID }}` | Red Hat pool IDs to attach |
 | `packer_services` | [see `defaults/main.yml`] | List of services and their state. |
 
 Dependencies
@@ -34,9 +35,9 @@ Including an example of how to use your role (for instance, with variables passe
 
     - hosts: rhel
       roles:
-         - samdoran.packer-rhel
+         - samdoran.packer_rhel
 
 License
 -------
 
-MIT
+Apache 2.0

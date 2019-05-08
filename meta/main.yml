@@ -1,20 +1,19 @@
 galaxy_info:
+  role_name: packer_rhel
   author: Sam Doran
-  description: "Configure a RHEL Vagrant box to be packaged by Packer"
+  description: Configure a RHEL Vagrant box to be packaged by Packer
   company:
-  license: MIT
+  license: Apache 2.0
   min_ansible_version: 2.4
 
   platforms:
-  - name: EL
-    versions:
-      - 6
-      - 7
+    - name: EL
+      versions:
+        - 6
+        - 7
 
   galaxy_tags:
     - packaging
     - system
     - packer
     - vagrant
-
-dependencies: []
